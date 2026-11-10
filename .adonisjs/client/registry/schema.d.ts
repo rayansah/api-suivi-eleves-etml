@@ -77,13 +77,13 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/students'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/student').studentValidator)>>
       paramsTuple: []
       params: {}
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/student').studentValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/students_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/students_controller').default['store']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/students_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/students_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/students_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'students.show': {
