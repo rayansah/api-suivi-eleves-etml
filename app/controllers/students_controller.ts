@@ -2,17 +2,16 @@ import Student from '#models/student'
 import type { HttpContext } from '@adonisjs/core/http'
 import { studentValidator } from '#validators/student'
 
- 
 export default class StudentsController {
   /**
    * Display a list of resource
    */
- 
-  async index({response}: HttpContext) {
-    const students = Student.query().orderBy('name').orderBy('firstname')
+
+  async index({ response }: HttpContext) {
+    const students = await Student.query().orderBy('name').orderBy('firstname').exec()
     return response.ok(students)
   }
- 
+
   /**
    * Ajouter un élève
    */
@@ -24,18 +23,18 @@ export default class StudentsController {
     // On utilise `response.created` pour retourner un code HTTP 201 avec les données de l'élève créé
     return response.created(student)
   }
- 
+
   /**
    * Show individual record
    */
   async show({ params, response }: HttpContext) {
     const student = await Student.findOrFail(params.id)
-    if (!student){
-      return response.notFound({message: 'Student not found'})
+    if (!student) {
+      return response.notFound({ message: 'Student not found' })
     }
     return response.ok(student)
   }
- 
+
   /**
    * Mettre à jour un élève
    *
@@ -43,22 +42,23 @@ export default class StudentsController {
    * - pour une modification complète (PUT)
    * - ou une modification partielle (PATCH)
    */
-  async update({ params, request, response}: HttpContext) {
-    // Récupération des données
-    const data = request.only(['name', 'firstname'])
+  async update({ params, request, response }: HttpContext) {
     // Vérification de l'existence de l'élève
     const student = await Student.findOrFail(params.id)
-    if(!student){
-      return response.notFound({message: 'Student not found'})
-    }
+
+    // Récupération et validation des données
+    const data = await request.validateUsing(studentValidator)
+
     // Mise à jour des données de l'élève
     student.merge(data)
+
     // Sauvegarde des modifications
     await student.save()
-    // Retour le json de l'élève mis à jour
+
+    // Retourne le JSON de l'élève mis à jour
     return response.ok(student)
   }
- 
+
   /**
    * Supprimer un élève
    */
@@ -73,5 +73,4 @@ export default class StudentsController {
 
     return response.noContent()
   }
-  
 }
