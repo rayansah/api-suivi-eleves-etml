@@ -7,7 +7,7 @@ export default class ClassGroupsController {
    * Display a list of resource
    */
   async index({ response }: HttpContext) {
-    const classGroup = await ClassGroup.query().orderBy('name').exec()
+    const classGroup = await ClassGroup.query().preload('teacher').orderBy('name', 'asc')
     return response.ok(classGroup)
   }
 
@@ -15,11 +15,11 @@ export default class ClassGroupsController {
    * Handle form submission for the create action
    */
   async store({ request, response }: HttpContext) {
-    // Récupération des données envoyées par le client et validation des données
-    const { name } = await request.validateUsing(classGroupValidator)
-    // Création d'un nouveau prof avec les données validées
-    const classGroup = await ClassGroup.create({ name })
-    // On utilise `response.created` pour retourner un code HTTP 201 avec les données de l'élève créé
+    /// Récupération des données envoyées par le client et validation des données
+    const { name, teacherId } = await request.validateUsing(classGroupValidator)
+    // Création d'une nouvelle classe avec les données validées
+    const classGroup = await ClassGroup.create({ name, teacherId })
+    // On utilise `response.created` pour retourner un code HTTP 201 avec les données de la classe créée
     return response.created(classGroup)
   }
 
@@ -42,10 +42,10 @@ export default class ClassGroupsController {
     const classGroup = await ClassGroup.findOrFail(params.id)
 
     // Récupération et validation des données
-    const data = await request.validateUsing(classGroupValidator)
+    const { name, teacherId } = await request.validateUsing(classGroupValidator)
 
     // Mise à jour des données de l'élève
-    classGroup.merge(data)
+    classGroup.merge({ name, teacherId })
 
     // Sauvegarde des modifications
     await classGroup.save()
