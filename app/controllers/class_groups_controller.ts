@@ -27,7 +27,10 @@ export default class ClassGroupsController {
    * Show individual record
    */
   async show({ params, response }: HttpContext) {
-    const classGroup = await ClassGroup.findOrFail(params.id)
+    const classGroup = await ClassGroup.query()
+      .preload('teacher')
+      .where('id', params.id)
+      .firstOrFail()
     if (!classGroup) {
       return response.notFound({ message: 'ClassGroup not found' })
     }

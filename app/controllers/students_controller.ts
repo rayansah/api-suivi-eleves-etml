@@ -8,7 +8,10 @@ export default class StudentsController {
    */
 
   async index({ response }: HttpContext) {
-    const students = await Student.query().orderBy('name').orderBy('firstname').exec()
+    const students = await Student.query()
+      .preload('classGroup')
+      .orderBy('name')
+      .orderBy('firstname')
     return response.ok(students)
   }
 
@@ -17,9 +20,9 @@ export default class StudentsController {
    */
   async store({ request, response }: HttpContext) {
     // Récupération des données envoyées par le client et validation des données
-    const { name, firstname } = await request.validateUsing(studentValidator)
+    const { name, firstname, classGroupId } = await request.validateUsing(studentValidator)
     // Création d'un nouvel élève avec les données validées
-    const student = await Student.create({ name, firstname })
+    const student = await Student.create({ name, firstname, classGroupId })
     // On utilise `response.created` pour retourner un code HTTP 201 avec les données de l'élève créé
     return response.created(student)
   }
@@ -28,10 +31,7 @@ export default class StudentsController {
    * Show individual record
    */
   async show({ params, response }: HttpContext) {
-    const student = await Student.findOrFail(params.id)
-    if (!student) {
-      return response.notFound({ message: 'Student not found' })
-    }
+    const student = await Student.query().preload('classGroup').where('id', params.id).firstOrFail()
     return response.ok(student)
   }
 
