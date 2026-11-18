@@ -41,6 +41,8 @@ router.get('test', async () => {
 })
 // Routes pour le CRUD /students
 router.resource('students', controllers.Students).apiOnly()
+router.resource('teachers', controllers.Teachers).apiOnly()
+router.resource('classGroup', controllers.ClassGroups).apiOnly()
 /* est équivalent à :
   router.group(() => {
   router.get('', [controllers.Students, 'index'])

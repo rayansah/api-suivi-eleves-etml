@@ -3,6 +3,6 @@ import ClassGroup from '#models/class_group'
 
 export const ClassGroupFactory = factory
   .define(ClassGroup, async ({ faker }) => {
-    return { name: faker.person.lastName() }
+    return { name: faker.string.alpha(3) }
   })
   .build()
